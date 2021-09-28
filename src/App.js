@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import Navbar from "./templates/Navbar";
+import Home from "./views/Home";
 import Login from "./views/Login";
 
 const App = () => {
@@ -11,7 +11,7 @@ const App = () => {
           <Login />
         </Route>
         <Route path="/">
-          <Navbar />
+          <Home />
         </Route>
       </Switch>
     </Router>

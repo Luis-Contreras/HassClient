@@ -1,24 +1,40 @@
-import { useState } from "react";
-import {
-  Flex,
-  Heading,
-  Input,
-  Button,
-  InputGroup,
-  Stack,
-  InputLeftElement,
-  Box,
-  Link,
-  FormControl,
-  FormHelperText,
-  InputRightElement,
-} from "@chakra-ui/react";
+import React, { useState } from "react";
+import { Flex, Stack, Box, Link } from "@chakra-ui/react";
 import Logo from "../components/Logo";
+import Input from "../components/Input";
+import Title from "../components/Title";
+import Button from "../components/Button";
+import { IconLock, IconUser } from "../components/Icons";
+import { colors } from "../themes/colors";
+import { useHistory } from "react-router-dom";
+import { LoginFields } from "../validateFields/LoginFields";
+import { LoginAction } from "../api";
+import Notify from "../utils/Notify";
 
 const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const [values, setValues] = useState({});
+  const history = useHistory();
 
-  const handleShowClick = () => setShowPassword(!showPassword);
+  const Login = async () => {
+    const errors = LoginFields(values);
+
+    if (Object.keys(errors).length !== 0) {
+      return;
+    }
+
+    const data = await LoginAction(values);
+
+    if (!data) {
+      Notify({
+        title: "Usuario incorrecto",
+        type: "warning",
+      });
+    }
+
+    localStorage.setItem("userData", JSON.stringify(data));
+
+    return history.push("/");
+  };
 
   return (
     <Flex
@@ -27,64 +43,46 @@ const Login = () => {
       height="100vh"
       backgroundColor="#2c2d2e"
       justifyContent="center"
-      alignItems="center">
+      alignItems="center"
+    >
       <Stack
         flexDir="column"
         mb="2"
         justifyContent="center"
-        alignItems="center">
+        alignItems="center"
+        boxShadow="dark-lg"
+        borderRadius="15px"
+        padding="20px"
+      >
         <Logo onlyLogo />
-        <Heading color="#71c285">Welcome</Heading>
+        <Title>Bienvenido</Title>
         <Box minW={{ base: "90%", md: "468px" }}>
-          <form>
-            <Stack
-              spacing={4}
-              p="1rem"
-              backgroundColor="whiteAlpha.900"
-              boxShadow="md">
-              <FormControl>
-                <InputGroup>
-                  <InputLeftElement pointerEvents="none" />
-                  <Input type="email" placeholder="email address" />
-                </InputGroup>
-              </FormControl>
-              <FormControl>
-                <InputGroup>
-                  <InputLeftElement pointerEvents="none" color="gray.300" />
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Password"
-                  />
-                  <InputRightElement width="4.5rem">
-                    <Button h="1.75rem" size="sm" onClick={handleShowClick}>
-                      {showPassword ? "Hide" : "Show"}
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-                <FormHelperText textAlign="right">
-                  <Link>forgot password?</Link>
-                </FormHelperText>
-              </FormControl>
-              <Button
-                borderRadius={0}
-                border="none"
-                color="white"
-                variant="solid"
-                bg="#71c285"
-                _hover={{ bg: "#4cb766" }}
-                _active={{ bg: "#71df8c" }}
-                width="full">
-                Login
-              </Button>
-            </Stack>
-          </form>
+          <Stack spacing={4} p="1rem" boxShadow="md">
+            <Input
+              Icon={IconUser}
+              placeholder="correo"
+              type="email"
+              onChange={(e) =>
+                setValues({ ...values, username: e.target.value })
+              }
+            />
+            <Input
+              Icon={IconLock}
+              placeholder="contraseña"
+              type="password"
+              onChange={(e) =>
+                setValues({ ...values, password: e.target.value })
+              }
+            />
+            <Button primary onClick={() => Login()}>
+              Ingresar
+            </Button>
+            <Button onClick={() => history.push("/")}>Volver</Button>
+          </Stack>
         </Box>
       </Stack>
       <Box color="white">
-        New to us?{" "}
-        <Link color="#71c285" href="#">
-          Sign Up
-        </Link>
+        No tienes cuenta? <Link color={colors.primaryColor}>Registrarse</Link>
       </Box>
     </Flex>
   );
